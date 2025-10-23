@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Lista Completa de Verbos Irregulares - A1+</title>
+  <style>
+    body{font-family:Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; padding:24px; background:#f7fafc; color:#0f172a}
+    .container{max-width:1200px;margin:0 auto;background:#fff;padding:20px;border-radius:12px;box-shadow:0 6px 18px rgba(15,23,42,0.06)}
+    h1{font-size:22px;margin-bottom:6px}
+    p{color:#475569;margin-top:0}
+    .controls{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}
+    input[type="search"]{flex:1;padding:10px;border:1px solid #e2e8f0;border-radius:8px}
+    button{padding:10px 12px;border-radius:8px;border:0;background:#0ea5a4;color:white;cursor:pointer}
+    button.secondary{background:#334155}
+    table{width:100%;border-collapse:collapse;margin-top:12px}
+    th,td{padding:10px 8px;text-align:left;border-bottom:1px solid #e6eef6;font-size:14px}
+    th{background:linear-gradient(90deg,#f1f5f9,#fff);position:sticky;top:0}
+    tr:hover td{background:#fbfdff}
+    .small{font-size:13px;color:#64748b}
+    footer{margin-top:16px;color:#64748b;font-size:13px}
+    @media (max-width:640px){th,td{font-size:13px;padding:8px}}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Lista Completa de Verbos Irregulares</h1>
+    <p class="small">Incluye la forma base, pasado simple, traducción al español, ejemplo en inglés y su traducción al español. Usa la búsqueda para filtrar y el botón <strong>Descargar CSV</strong> para abrirlo en Excel.</p>
+
+    <div class="controls">
+      <input id="search" type="search" placeholder="Busca: ejemplo 'go', 'went' o 'ir'" oninput="renderTable()">
+      <button onclick="downloadCSV()">Descargar CSV</button>
+      <button class="secondary" onclick="copyCSV()">Copiar CSV</button>
+      <button class="secondary" onclick="resetSearch()">Limpiar</button>
+    </div>
+
+    <div style="overflow:auto;max-height:70vh">
+      <table id="verbsTable">
+        <thead>
+          <tr><th>Base Form</th><th>Past Simple</th><th>Español</th><th>Ejemplo (EN)</th><th>Ejemplo (ES)</th></tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    const verbs = [
+      ["arise","arose","surgir, levantarse","A problem arose during the test.","Surgió un problema durante la prueba."],
+      ["awake","awoke","despertar(se)","She awoke early.","Ella despertó temprano."],
+      ["be","was / were","ser, estar","I was happy yesterday.","Ayer estuve feliz."],
+      ["bear","bore","soportar, dar a luz","She bore her pain with courage.","Ella soportó su dolor con valor."],
+      ["beat","beat","golpear, vencer","They beat the champions.","Ellos vencieron a los campeones."],
+      ["become","became","convertirse en","He became a doctor.","Él se convirtió en doctor."],
+      ["begin","began","comenzar","They began the lesson.","Ellos comenzaron la lección."],
+      ["bend","bent","doblar","She bent the metal bar.","Ella dobló la barra de metal."],
+      ["bet","bet","apostar","He bet all his money.","Él apostó todo su dinero."],
+      ["bite","bit","morder","The dog bit him.","El perro lo mordió."],
+      ["bleed","bled","sangrar","He bled after the cut.","Sangró después del corte."],
+      ["blow","blew","soplar","The wind blew strongly.","El viento sopló fuerte."],
+      ["break","broke","romper","She broke the vase.","Ella rompió el jarrón."],
+      ["bring","brought","traer","He brought his friend.","Él trajo a su amigo."],
+      ["build","built","construir","They built a new house.","Construyeron una casa nueva."],
+      ["burn","burnt / burned","quemar","The fire burned the papers.","El fuego quemó los papeles."],
+      ["burst","burst","explotar, reventar","The balloon burst.","El globo reventó."],
+      ["buy","bought","comprar","I bought a gift.","Compré un regalo."],
+      ["catch","caught","atrapar","She caught the ball.","Ella atrapó la pelota."],
+      ["choose","chose","elegir","He chose the blue one.","Él eligió el azul."],
+      ["come","came","venir","They came late.","Vinieron tarde."],
+      ["cost","cost","costar","The dress cost a lot.","El vestido costó mucho."],
+      ["cut","cut","cortar","She cut the paper.","Ella cortó el papel."],
+      ["deal","dealt","tratar, negociar","He dealt with the problem.","Él trató con el problema."],
+      ["dig","dug","cavar","They dug a hole.","Cavaron un hueco."],
+      ["do","did","hacer","I did my homework.","Hice mi tarea."],
+      ["draw","drew","dibujar","She drew a picture.","Ella dibujó un dibujo."],
+      ["dream","dreamt / dreamed","soñar","He dreamt about flying.","Él soñó que volaba."],
+      ["drink","drank","beber","She drank water.","Ella bebió agua."],
+      ["drive","drove","conducir","He drove to work.","Él condujo al trabajo."],
+      ["eat","ate","comer","We ate dinner.","Cenamos."],
+      ["fall","fell","caer","She fell down the stairs.","Ella se cayó por las escaleras."],
+      ["feed","fed","alimentar","He fed the baby.","Él alimentó al bebé."],
+      ["feel","felt","sentir","I felt happy.","Me sentí feliz."],
+      ["fight","fought","pelear","They fought bravely.","Ellos lucharon valientemente."],
+      ["find","found","encontrar","I found my keys.","Encontré mis llaves."],
+      ["fit","fit","encajar, quedar","The shirt fit well.","La camisa quedó bien."],
+      ["flee","fled","huir","The thief fled the scene.","El ladrón huyó del lugar."],
+      ["fly","flew","volar","The bird flew away.","El pájaro voló."],
+      ["forget","forgot","olvidar","I forgot your name.","Olvidé tu nombre."],
+      ["forgive","forgave","perdonar","She forgave him.","Ella lo perdonó."],
+      ["freeze","froze","congelar","The lake froze in winter.","El lago se congeló en invierno."],
+      ["get","got","obtener, conseguir","He got a prize.","Él consiguió un premio."],
+      ["give","gave","dar","She gave me a book.","Ella me dio un libro."],
+      ["go","went","ir","We went to the beach.","Fuimos a la playa."],
+      ["grow","grew","crecer","The plant grew quickly.","La planta creció rápido."],
+      ["hang","hung","colgar","He hung the picture.","Él colgó el cuadro."],
+      ["have","had","tener","I had breakfast.","Desayuné."],
+      ["hear","heard","oír","I heard a noise.","Oí un ruido."],
+      ["hide","hid","esconder","She hid the gift.","Ella escondió el regalo."],
+      ["hit","hit","golpear","He hit the target.","Él golpeó el blanco."],
+      ["hold","held","sostener","She held the baby.","Ella sostuvo al bebé."],
+      ["hurt","hurt","herir","He hurt his arm.","Se lastimó el brazo."],
+      ["keep","kept","mantener","She kept the secret.","Ella guardó el secreto."],
+      ["know","knew","saber, conocer","I knew the answer.","Supe la respuesta."],
+      ["lay","laid","poner (algo sobre algo)","She laid the book on the table.","Ella puso el libro en la mesa."],
+      ["lead","led","dirigir","He led the team.","Él dirigió el equipo."],
+      ["leave","left","irse, dejar","They left early.","Se fueron temprano."],
+      ["lend","lent","prestar","I lent him money.","Le presté dinero."],
+      ["let","let","permitir","She let him go.","Ella lo dejó ir."],
+      ["lie","lay","acostarse","He lay on the bed.","Él se acostó en la cama."],
+      ["light","lit / lighted","encender","She lit a candle.","Ella encendió una vela."],
+      ["lose","lost","perder","I lost my wallet.","Perdí mi billetera."],
+      ["make","made","hacer, fabricar","She made dinner.","Ella hizo la cena."],
+      ["mean","meant","significar","I meant to call you.","Quise llamarte."],
+      ["meet","met","conocer, reunirse","We met yesterday.","Nos conocimos ayer."],
+      ["pay","paid","pagar","He paid the bill.","Él pagó la cuenta."],
+      ["put","put","poner","She put the cup down.","Ella puso la taza."],
+      ["read","read (pronunciado /red/)","leer","I read that book last year.","Leí ese libro el año pasado."],
+      ["ride","rode","montar","He rode the bike.","Él montó la bicicleta."],
+      ["ring","rang","sonar","The phone rang.","El teléfono sonó."],
+      ["rise","rose","levantarse","The sun rose at six.","El sol salió a las seis."],
+      ["run","ran","correr","She ran to the store.","Ella corrió a la tienda."],
+      ["say","said","decir","He said hello.","Él dijo hola."],
+      ["see","saw","ver","I saw a movie.","Vi una película."],
+      ["sell","sold","vender","They sold their house.","Vendieron su casa."],
+      ["send","sent","enviar","I sent an email.","Envié un correo."],
+      ["set","set","colocar, establecer","She set the table.","Ella puso la mesa."],
+      ["shake","shook","sacudir","He shook the bottle.","Él agitó la botella."],
+      ["shine","shone","brillar","The sun shone brightly.","El sol brilló intensamente."],
+      ["shoot","shot","disparar","He shot the target.","Él disparó al blanco."],
+      ["show","showed","mostrar","She showed her photos.","Ella mostró sus fotos."],
+      ["shut","shut","cerrar","He shut the door.","Él cerró la puerta."],
+      ["sing","sang","cantar","She sang a song.","Ella cantó una canción."],
+      ["sit","sat","sentarse","He sat on the chair.","Él se sentó en la silla."],
+      ["sleep","slept","dormir","They slept well.","Durmieron bien."],
+      ["speak","spoke","hablar","She spoke softly.","Ella habló suavemente."],
+      ["spend","spent","gastar","I spent all day studying.","Pasé todo el día estudiando."],
+      ["stand","stood","estar de pie","He stood near the door.","Él estuvo de pie cerca de la puerta."],
+      ["steal","stole","robar","Someone stole my bike.","Alguien robó mi bicicleta."],
+      ["stick","stuck","pegar, adherir","The stamp stuck to the envelope.","El sello se pegó al sobre."],
+      ["strike","struck","golpear, ocurrir","He struck the ball.","Él golpeó la pelota."],
+      ["swim","swam","nadar","We swam in the lake.","Nadamos en el lago."],
+      ["take","took","tomar, llevar","She took a photo.","Ella tomó una foto."],
+      ["teach","taught","enseñar","He taught the class.","Él enseñó la clase."],
+      ["tear","tore","rasgar, romper","She tore the paper.","Ella rasgó el papel."],
+      ["tell","told","decir, contar","He told a story.","Él contó una historia."],
+      ["think","thought","pensar","I thought about it.","Lo pensé."],
+      ["throw","threw","lanzar","He threw the ball.","Él lanzó la pelota."],
+      ["understand","understood","entender","I understood the lesson.","Entendí la lección."],
+      ["wake","woke","despertar","She woke early.","Ella despertó temprano."],
+      ["wear","wore","vestir, usar","He wore a hat.","Él usó un sombrero."],
+      ["win","won","ganar","They won the game.","Ganaron el juego."],
+      ["write","wrote","escribir","I wrote a letter.","Escribí una carta."]
+    ];
+
+    function renderTable(){
+      const q = document.getElementById('search').value.trim().toLowerCase();
+      const tbody = document.getElementById('tbody');
+      tbody.innerHTML = '';
+      const filtered = verbs.filter(r=>!q || r.some(c=>String(c).toLowerCase().includes(q)));
+      for(const row of filtered){
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${row[0]}</td><td>${row[1]}</td><td>${row[2]}</td><td>${row[3]}</td><td>${row[4]}</td>`;
+        tbody.appendChild(tr);
+      }
+    }
+
+    function downloadCSV(){
+      const rows = [['Base Form','Past Simple','Español','Ejemplo (EN)','Ejemplo (ES)'], ...verbs];
+      const csv = rows.map(r=>r.map(c => '"'+String(c).replace(/"/g,'""')+'"').join(',')).join('\n');
+      const blob = new Blob([csv],{type:'text/csv;charset=utf-8;'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'verbos_irregulares_completo.csv';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    function copyCSV(){
+      const rows = [['Base Form','Past Simple','Español','Ejemplo (EN)','Ejemplo (ES)'], ...verbs];
+      const csv = rows.map(r=>r.join('\t')).join('\n');
+      navigator.clipboard.writeText(csv).then(()=>alert('CSV copiado al portapapeles.')).catch(()=>alert('No se pudo copiar.'));
+    }
+
+    function resetSearch(){
+      document.getElementById('search').value='';
+      renderTable();
+    }
+
+    renderTable();
+  </script>
+</body>
+</html>
